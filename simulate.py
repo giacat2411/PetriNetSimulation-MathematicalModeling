@@ -11,6 +11,9 @@ class Petri:
         self.init_free = ""
         self.init_busy = ""
         self.init_docu = ""
+        self.markings = []
+        self.state = 0
+        self.transition = 0
         self.free = ""
         self.busy = ""
         self.docu = ""
@@ -119,12 +122,17 @@ class Petri:
 
         # LABEL MARKING
         self.label_marking = Label(self.canvas, text = "MARKING M = [" + str(self.free) 
-                                                        + ", " + str(self.busy) + ", " + str(self.docu) +"]" 
+                                                        + ".free, " + str(self.busy) + ",.busy " + str(self.docu) +".docu]" 
                                                 , bg="white")
         self.label_marking.pack()
         self.canvas.create_window(245, 10, window = self.label_marking)
 
     def setup(self):
+        print("SETUP\n" + "-"*30)
+        self.markings = []
+        self.state = 0
+        self.transition = 0
+
         if self.flag_auto == 1:
             tkinter.messagebox.showwarning('Lỗi', 'Không thể SET khi đang AUTO FIRE !!!')
         else: 
@@ -139,8 +147,8 @@ class Petri:
                 self.label_free.configure(text = str(self.init_free))
                 self.label_busy.configure(text = str(self.init_busy))
                 self.label_docu.configure(text = str(self.init_docu))
-                self.label_marking.configure(text = "MARKING M = [" + str(self.free) + ", " 
-                                                    + str(self.busy) + ", " + str(self.docu) +"]")
+                self.label_marking.configure(text = "MARKING M_0 = [" + str(self.free) + ".free, " 
+                                                    + str(self.busy) + ".busy, " + str(self.docu) +".docu]")
 
     def auto_fire(self):
         if (self.init_busy == "" and self.init_free == "" and self.init_docu == ""):
@@ -158,16 +166,67 @@ class Petri:
             tkinter.messagebox.showwarning('Lỗi', 'Vui lòng bấm SET để khởi tạo MARKING trước khi dùng các chức năng khác!')
         else:
             self.flag_auto *= -1
-            print("AUTO FIRE MODE OFF\n")
-            print("MARKING M = [" + str(self.free) + ", " + str(self.busy) + ", " + str(self.docu)
-                    +"]\n" + "-"*30)
+            print("AUTO FIRE MODE OFF\n" + "-"*30)
 
     def marking(self):
+        print("TRANSITION SYSTEM")
+        self.markings = []
+        self.state = 0
+        self.transition = 0
         if (self.init_busy == "" and self.init_free == "" and self.init_docu == ""):
             tkinter.messagebox.showwarning('Lỗi', 'Vui lòng bấm SET để khởi tạo MARKING trước khi dùng các chức năng khác!')
         else:
-            pass
+            # FORM MARKING: [x.free, y.busy, z.docu]
+            current_marking = [self.init_free, self.init_busy, self.init_docu]
+            self.markings.append(current_marking)
+            self.state += 1
+
+            self.find_marking(self.markings[0])
+            
+            print(str(self.state) + " states")
+            print(str(self.transition) + " transitions\n" + "-"*30)
+
+    def find_marking(self, marking): 
+        near = self.near_marking(marking)
+        for i in range (0, len(near)):
+            self.find_marking(near[i])
     
+    def near_marking(self, current_marking):
+        near = []
+        if (current_marking[0] > 0):
+            self.transition += 1
+            marking = [current_marking[0] - 1, current_marking[1] + 1, current_marking[2]]
+            print("[" + str(current_marking) + "; START> " + str(marking))
+            
+            if (marking in self.markings): pass
+            else: 
+                near.append(marking)
+                self.markings.append(marking)
+                self.state += 1
+                    
+        if (current_marking[1] > 0):
+            self.transition += 1
+            marking = [current_marking[0], current_marking[1] - 1, current_marking[2] + 1]
+            print("[" + str(current_marking) + "; CHANGE> " + str(marking))
+            
+            if (marking in self.markings): pass
+            else: 
+                near.append(marking)
+                self.markings.append(marking)
+                self.state += 1
+                    
+        if (current_marking[2] > 0):
+            self.transition += 1
+            marking = [current_marking[0] + 1, current_marking[1], current_marking[2] - 1]
+            print("[" + str(current_marking) + "; END> " + str(marking))
+
+            if (marking in self.markings): pass
+            else: 
+                near.append(marking)
+                self.markings.append(marking)
+                self.state += 1
+        return near
+
     def onClick(self, event):
         if (self.init_busy == "" and self.init_free == "" and self.init_docu == ""):
             tkinter.messagebox.showwarning('Lỗi', 'Vui lòng bấm SET để khởi tạo Marking ban đầu !!!')
@@ -266,7 +325,7 @@ class Petri:
         
         while (self.flag_auto == 1 and self.flag_fire_start != 1 and self.flag_fire_change != 1 and self.flag_fire_end != 1):
             self.fire()
-            time.sleep(1.25)
+            time.sleep(1.35)
 
     def fire(self):
         if ((self.free > 0 and self.docu == 0 and self.busy == 0) or
@@ -336,13 +395,14 @@ class Petri:
             self.flag_auto = -1
         if self.flag_fire_change == 1 or self.flag_fire_end == 1 or self.flag_fire_start == 1: 
             tkinter.messagebox.showwarning('Lỗi', 'Vui lòng chờ, đang ngừng các chuyển tiếp ...')
-        # if tkinter.messagebox.askokcancel("Quit app ?", "Are you sure to quit"):
-        self.master.destroy()
+        if tkinter.messagebox.askokcancel("Quit app ?", "Are you sure to quit"):
+            self.stop_fire()
+            self.master.destroy()
 
 if __name__ == "__main__":
     root = Tk()
 
     app = Petri(root)
-    app.master.title("Item 1 - Assignment - Petri Net")
+    app.master.title("Item 1bii - Assignment - Petri Net")
 
     root.mainloop()
