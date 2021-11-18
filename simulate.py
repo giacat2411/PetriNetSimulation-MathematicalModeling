@@ -22,6 +22,7 @@ class Petri:
         self.flag_fire_change = -1
         self.flag_fire_end = -1
         self.isSet = -1
+        self.deadlock = -1
         self.createWidgets()
         
 
@@ -323,10 +324,9 @@ class Petri:
                                                     + str(self.busy) + ", " + str(self.docu) +"]")
             self.flag_fire_change *= -1
 
-    def handle_fire(self):
-        start = time.time()
-        
+    def handle_fire(self):        
         while (self.flag_auto == 1 and self.flag_fire_start != 1 and self.flag_fire_change != 1 and self.flag_fire_end != 1):
+            self.check_deadlock()
             self.fire()
             time.sleep(1.35)
 
@@ -371,7 +371,7 @@ class Petri:
                 self.fire_end()
                 self.fire_change()
 
-        else:
+        elif (self.free > 0 and self.duco > 0 and self.busy > 0):
             prob = random.random()
             if prob <= 1.0/7:
                 self.fire_start()
@@ -392,6 +392,11 @@ class Petri:
                 self.fire_start()
                 self.fire_change()
                 self.fire_end()
+
+    def check_deadlock(self):
+        if (self.free == 0 and self.docu == 0 and self.busy == 0):
+            print("DEADLOCK")
+            self.stop_fire()
 
     def handler(self):
         if self.flag_auto == 1: 
