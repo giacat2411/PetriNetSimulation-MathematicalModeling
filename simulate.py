@@ -2,7 +2,7 @@ from tkinter import *
 import tkinter.messagebox
 import threading
 import random
-import os
+import time
 
 class Petri:
     def __init__(self, master):
@@ -203,20 +203,11 @@ class Petri:
             self.flag_fire_start *= -1
 
         if self.canvas.coords(self.start_dot)[1] != 220.0:
-            # if self.flag_auto == 1:
-            #     self.canvas.move(self.start_dot, 0, 20)
-            # else:
                 self.canvas.move(self.start_dot, 0, 5)
         elif self.canvas.coords(self.start_dot)[0] != 200.0:
-            # if self.flag_auto == 1:
-            #     self.canvas.move(self.start_dot, 20, 0)
-            # else:
                 self.canvas.move(self.start_dot, 5, 0)
         
         if self.canvas.coords(self.start_dot)[0] != 200.0:
-            # if self.flag_auto == 1:
-            #     self.canvas.after(55, self.fire_start)
-            # else:
                 self.canvas.after(20, self.fire_start)
         else:
             self.canvas.delete(self.start_dot)
@@ -234,15 +225,9 @@ class Petri:
             self.flag_fire_end *= -1
 
         if self.canvas.coords(self.end_dot)[0] != 135.0:
-            # if self.flag_auto == 1:
-            #     self.canvas.move(self.end_dot, -41, 0)
-            # else:
                 self.canvas.move(self.end_dot, -5, 0)
 
         if self.canvas.coords(self.end_dot)[0] != 135.0:
-            # if self.flag_auto == 1:
-            #     self.canvas.after(55, self.fire_end)
-            # else:
                 self.canvas.after(20, self.fire_end)
         else:
             self.canvas.delete(self.end_dot)
@@ -277,11 +262,11 @@ class Petri:
             self.flag_fire_change *= -1
 
     def handle_fire(self):
-        print("BEFORE THREADING")
-        self.thread = threading.Thread(target = self.fire)
-        self.thread.start()
-        self.thread.join()
-        print("AFTER THREADING")
+        start = time.time()
+        
+        while (self.flag_auto == 1 and self.flag_fire_start != 1 and self.flag_fire_change != 1 and self.flag_fire_end != 1):
+            self.fire()
+            time.sleep(1.25)
 
     def fire(self):
         if ((self.free > 0 and self.docu == 0 and self.busy == 0) or
@@ -345,7 +330,6 @@ class Petri:
                 self.fire_start()
                 self.fire_change()
                 self.fire_end()
-            
 
     def handler(self):
         if self.flag_auto == 1: 
