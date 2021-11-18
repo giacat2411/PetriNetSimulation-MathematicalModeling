@@ -66,8 +66,6 @@ class Petri:
         self.canvas.create_rectangle(210, 50, 280, 120, tag="end") # END
         self.canvas.create_rectangle(350, 190, 420, 260, tag="change") # CHANGE
 
-        self.canvas.bind("<Button-1>", self.onClick)
-
         widget = Label(self.canvas, text='START', bg="white")
         widget.pack()
         self.canvas.create_window(105, 275, window = widget)
@@ -122,6 +120,8 @@ class Petri:
         self.marking_button['command'] = self.marking
         self.marking_button.grid(row=2, column=5, padx=2, pady=2)
 
+        self.canvas.bind("<Button-1>", self.onClick)
+
         # LABEL MARKING
         self.label_marking = Label(self.canvas, text = "MARKING M = [" + str(self.free) 
                                                         + ".free, " + str(self.busy) + ",.busy " + str(self.docu) +".docu]" 
@@ -131,7 +131,6 @@ class Petri:
 
     def setup(self):
         print("SETUP\n" + "-"*30)
-        self.isSet *= -1
         self.markings = []
         self.state = 0
         self.transition = 0
@@ -371,7 +370,7 @@ class Petri:
                 self.fire_end()
                 self.fire_change()
 
-        elif (self.free > 0 and self.duco > 0 and self.busy > 0):
+        elif (self.free > 0 and self.docu > 0 and self.busy > 0):
             prob = random.random()
             if prob <= 1.0/7:
                 self.fire_start()
