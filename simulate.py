@@ -21,6 +21,7 @@ class Petri:
         self.flag_fire_start = -1
         self.flag_fire_change = -1
         self.flag_fire_end = -1
+        self.isSet = -1
         self.createWidgets()
         
 
@@ -129,6 +130,7 @@ class Petri:
 
     def setup(self):
         print("SETUP\n" + "-"*30)
+        self.isSet *= -1
         self.markings = []
         self.state = 0
         self.transition = 0
@@ -169,14 +171,15 @@ class Petri:
             print("AUTO FIRE MODE OFF\n" + "-"*30)
 
     def marking(self):
-        print("TRANSITION SYSTEM")
-        self.markings = []
-        self.state = 0
-        self.transition = 0
         if (self.init_busy == "" and self.init_free == "" and self.init_docu == ""):
             tkinter.messagebox.showwarning('Lỗi', 'Vui lòng bấm SET để khởi tạo MARKING trước khi dùng các chức năng khác!')
         else:
             # FORM MARKING: [x.free, y.busy, z.docu]
+            print("TRANSITION SYSTEM")
+            self.markings = []
+            self.state = 0
+            self.transition = 0
+
             current_marking = [self.init_free, self.init_busy, self.init_docu]
             self.markings.append(current_marking)
             self.state += 1
@@ -396,7 +399,7 @@ class Petri:
         if self.flag_fire_change == 1 or self.flag_fire_end == 1 or self.flag_fire_start == 1: 
             tkinter.messagebox.showwarning('Lỗi', 'Vui lòng chờ, đang ngừng các chuyển tiếp ...')
         if tkinter.messagebox.askokcancel("Quit app ?", "Are you sure to quit"):
-            self.stop_fire()
+            if self.isSet == 1: self.stop_fire()
             self.master.destroy()
 
 if __name__ == "__main__":
