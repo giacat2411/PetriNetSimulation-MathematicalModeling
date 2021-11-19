@@ -13,19 +13,33 @@ class Petri:
         self.state = 0
         self.transition = 0
 
-        self.init_wait = ""
-        self.init_inside = ""
-        self.init_done = ""
-        self.init_free = ""
-        self.init_busy = ""
-        self.init_docu = ""
+        # self.init_wait = ""
+        # self.init_inside = ""
+        # self.init_done = ""
+        # self.init_free = ""
+        # self.init_busy = ""
+        # self.init_docu = ""
         
-        self.free = ""
-        self.busy = ""
-        self.docu = ""
-        self.wait = ""
-        self.inside = ""
-        self.done = ""
+        # self.free = ""
+        # self.busy = ""
+        # self.docu = ""
+        # self.wait = ""
+        # self.inside = ""
+        # self.done = ""
+
+        self.init_wait = 10
+        self.init_inside = 10
+        self.init_done = 10
+        self.init_free = 10
+        self.init_busy = 10
+        self.init_docu = 10
+        
+        self.free = 10
+        self.busy = 10
+        self.docu = 10
+        self.wait = 10
+        self.inside = 10
+        self.done = 10
 
         self.flag_fire_start = -1
         self.flag_fire_change = -1
@@ -36,7 +50,6 @@ class Petri:
         self.deadlock = -1
         self.createWidgets()
         
-
     def createWidgets(self):
         # _____ CREATE GUI _____
         self.canvas = Canvas(self.master, bg="white", height="550")
@@ -104,17 +117,17 @@ class Petri:
         self.canvas.create_rectangle(650, 190, 720, 260, tag="change") # CHANGE
         self.canvas.create_rectangle(230, 470, 300, 540, tag="end") # END
 
-        widget = Label(self.canvas, text='START', bg="white")
-        widget.pack()
-        self.canvas.create_window(405, 225, window = widget)
+        # widget = Label(self.canvas, text='START', bg="white")
+        # widget.pack()
+        # self.canvas.create_window(405, 245, window = widget)
 
-        widget = Label(self.canvas, text='CHANGE', bg="white")
-        widget.pack()
-        self.canvas.create_window(685, 225, window = widget)
+        # widget = Label(self.canvas, text='CHANGE', bg="white")
+        # widget.pack()
+        # self.canvas.create_window(685, 245, window = widget)
 
-        widget = Label(self.canvas, text='END', bg="white")
-        widget.pack()
-        self.canvas.create_window(265, 505, window = widget)
+        # widget = Label(self.canvas, text='END', bg="white")
+        # widget.pack()
+        # self.canvas.create_window(265, 525, window = widget)
 
         # FLOW RELATION
         self.canvas.create_line(440, 225, 510, 225, arrow=tkinter.LAST) # START -> INSIDE
@@ -220,13 +233,15 @@ class Petri:
                                 str(self.wait) + ".wait, " + str(self.inside) + ",.inside " + str(self.done) +".done]" )
 
     def auto_fire(self):
-        if (self.init_wait == "" and self.init_inside == "" and self.init_done == ""):
-            tkinter.messagebox.showwarning('Lỗi', 'Vui lòng bấm SET để khởi tạo MARKING trước khi dùng các chức năng khác!')
+        if (self.init_wait == "" and self.init_inside == "" and self.init_done == "" 
+            and self.init_free == "" and self.init_busy == "" and self.init_docu == ""):
+            tkinter.messagebox.showwarning('Lỗi', 'Vui lòng bấm SET để khởi tạo Marking ban đầu !!!')
         elif self.flag_auto == 1: pass
         else:
             self.flag_auto *= -1
-            # while (self.flag_auto == 1):
+
             print("AUTO FIRE MODE ON\n" + "-"*30)
+
             self.thread_auto_fire = threading.Thread(target=self.handle_fire)
             self.thread_auto_fire.start()   
     
@@ -239,16 +254,17 @@ class Petri:
             print("AUTO FIRE MODE OFF\n" + "-"*30)
 
     def marking(self):
-        if (self.init_wait == "" and self.init_inside == "" and self.init_done == ""):
-            tkinter.messagebox.showwarning('Lỗi', 'Vui lòng bấm SET để khởi tạo MARKING trước khi dùng các chức năng khác!')
+        if (self.init_wait == "" and self.init_inside == "" and self.init_done == "" 
+            and self.init_free == "" and self.init_busy == "" and self.init_docu == ""):
+            tkinter.messagebox.showwarning('Lỗi', 'Vui lòng bấm SET để khởi tạo Marking ban đầu !!!')
         else:
-            # FORM MARKING: [x.wait, y.inside, z.done]
+            # FORM MARKING: [x.free, y.busy, z.docu, a.wait, b.inside, c.done]
             print("TRANSITION SYSTEM")
             self.markings = []
             self.state = 0
             self.transition = 0
 
-            current_marking = [self.init_wait, self.init_inside, self.init_done]
+            current_marking = [self.free, self.busy, self.docu, self.init_wait, self.init_inside, self.init_done]
             self.markings.append(current_marking)
             self.state += 1
 
@@ -264,27 +280,59 @@ class Petri:
     
     def near_marking(self, current_marking):
         near = []
-        if (current_marking[0] > 0):
+        if (current_marking[0] > 0 and current_marking[3] > 0):
             self.transition += 1
-            marking = [current_marking[0] - 1, current_marking[1] + 1, current_marking[2]]
-            print("[" + str(current_marking[0]) + ".wait, " + str(current_marking[1]) + ".inside, " 
-                      + str(current_marking[2]) + ".done]"+ "; START> " 
-                      + "[" + str(marking[0]) + ".wait, " + str(marking[1]) + ".inside, " 
-                      + str(marking[2]) + ".done]")
-            
+            marking = [current_marking[0] - 1, current_marking[1] + 1, current_marking[2]   
+                      ,current_marking[3] - 1, current_marking[4] + 1, current_marking[5]]
+            print("[" + str(current_marking[0]) + ".free, " + str(current_marking[1]) + ".busy, " 
+                      + str(current_marking[2]) + ".docu, "
+                      + str(current_marking[3]) + ".wait, " + str(current_marking[4]) + ".inside, " 
+                      + str(current_marking[5]) + ".done]"
+                      + "; START> " 
+                      + "[" + str(marking[0]) + ".free, " + str(marking[1]) + ".busy, " 
+                      + str(marking[2]) + ".docu, "
+                      + str(marking[3]) + ".wait, " + str(marking[4]) + ".inside, " 
+                      + str(marking[5]) + ".done]")
+                      
             if (marking in self.markings): pass
             else: 
                 near.append(marking)
                 self.markings.append(marking)
                 self.state += 1
                     
-        if (current_marking[1] > 0):
+        if (current_marking[1] > 0 and current_marking[4] > 0):
             self.transition += 1
-            marking = [current_marking[0], current_marking[1] - 1, current_marking[2] + 1]
-            print("[" + str(current_marking[0]) + ".wait, " + str(current_marking[1]) + ".inside, " 
-                      + str(current_marking[2]) + ".done]"+ "; CHANGE> " 
-                      + "[" + str(marking[0]) + ".wait, " + str(marking[1]) + ".inside, " 
-                      + str(marking[2]) + ".done]")
+            marking = [current_marking[0], current_marking[1] - 1, current_marking[2] + 1 
+                      ,current_marking[3], current_marking[4] - 1, current_marking[5] + 1]
+            print("[" + str(current_marking[0]) + ".free, " + str(current_marking[1]) + ".busy, " 
+                      + str(current_marking[2]) + ".docu, "
+                      + str(current_marking[3]) + ".wait, " + str(current_marking[4]) + ".inside, " 
+                      + str(current_marking[5]) + ".done]"
+                      + "; CHANGE> " 
+                      + "[" + str(marking[0]) + ".free, " + str(marking[1]) + ".busy, " 
+                      + str(marking[2]) + ".docu, "
+                      + str(marking[3]) + ".wait, " + str(marking[4]) + ".inside, " 
+                      + str(marking[5]) + ".done]")
+            
+            if (marking in self.markings): pass
+            else: 
+                near.append(marking)
+                self.markings.append(marking)
+                self.state += 1     
+        
+        if (current_marking[2] > 0):
+            self.transition += 1
+            marking = [current_marking[0] + 1, current_marking[1], current_marking[2] - 1 
+                      ,current_marking[3], current_marking[4], current_marking[5]]
+            print("[" + str(current_marking[0]) + ".free, " + str(current_marking[1]) + ".busy, " 
+                      + str(current_marking[2]) + ".docu, "
+                      + str(current_marking[3]) + ".wait, " + str(current_marking[4]) + ".inside, " 
+                      + str(current_marking[5]) + ".done]"
+                      + "; END> " 
+                      + "[" + str(marking[0]) + ".free, " + str(marking[1]) + ".busy, " 
+                      + str(marking[2]) + ".docu, "
+                      + str(marking[3]) + ".wait, " + str(marking[4]) + ".inside, " 
+                      + str(marking[5]) + ".done]")
             
             if (marking in self.markings): pass
             else: 
@@ -294,7 +342,8 @@ class Petri:
         return near
 
     def onClick(self, event):
-        if (self.init_wait == "" and self.init_inside == "" and self.init_done == ""):
+        if (self.init_wait == "" and self.init_inside == "" and self.init_done == "" 
+            and self.init_free == "" and self.init_busy == "" and self.init_docu == ""):
             tkinter.messagebox.showwarning('Lỗi', 'Vui lòng bấm SET để khởi tạo Marking ban đầu !!!')
         elif (self.flag_auto == 1):
             tkinter.messagebox.showwarning('Lỗi', 'Vui lòng tắt AUTO FIRE để có thể kích hoạt theo ý muốn !!!')
@@ -302,78 +351,158 @@ class Petri:
             item = self.canvas.find_closest(event.x, event.y)
             tag = self.canvas.itemcget(item, "tag")
             if tag == "start" and self.flag_fire_start != 1:
-                if self.wait != 0:
+                if self.wait != 0 and self.free != 0:
                     print("FIRING START!!!")
                     self.fire_start()
                 else:
                     tkinter.messagebox.showwarning('Lỗi', 'Chuyển tiếp START không tích cực!!!')
 
             elif tag == "change" and self.flag_fire_change != 1:
-                if self.inside != 0:
+                if self.inside != 0 and self.busy != 0:
                     print("FIRING CHANGE!!!")
                     self.fire_change()
                 else:
                     tkinter.messagebox.showwarning('Lỗi', 'Chuyển tiếp CHANGE không tích cực!!!')
+            
+            elif tag == "end" and self.flag_fire_end != 1:
+                if self.docu != 0:
+                    print("FIRING END!!!")
+                    self.fire_end()
+                else:
+                    tkinter.messagebox.showwarning('Lỗi', 'Chuyển tiếp END không tích cực!!!')
 
     def fire_start(self):
         if self.flag_fire_start == -1:
-            self.start_dot = self.canvas.create_oval(100, 120, 110, 130, fill="black")
+            self.start_dot_1 = self.canvas.create_oval(300, 220, 310, 230, fill="black")
+            self.start_dot_2 = self.canvas.create_oval(400, 120, 410, 130, fill="black")
             self.flag_fire_start *= -1
 
-        if self.canvas.coords(self.start_dot)[1] != 220.0:
-                self.canvas.move(self.start_dot, 0, 5)
-        elif self.canvas.coords(self.start_dot)[0] != 200.0:
-                self.canvas.move(self.start_dot, 5, 0)
-        
-        if self.canvas.coords(self.start_dot)[0] != 200.0:
-                self.canvas.after(20, self.fire_start)
+        if self.canvas.coords(self.start_dot_1)[0] < 500.0:
+            self.canvas.move(self.start_dot_1, 100.0/24, 0)
+
+        if self.canvas.coords(self.start_dot_2)[1] < 219.0:
+            self.canvas.move(self.start_dot_2, 0, 100.0/24)
+        elif self.canvas.coords(self.start_dot_2)[1] < 355.0:
+            self.canvas.move(self.start_dot_2, 0, 10)
         else:
-            self.canvas.delete(self.start_dot)
+            self.canvas.move(self.start_dot_2, 10, 0)
+        
+        if self.canvas.coords(self.start_dot_2)[0] <= 500.0:
+            self.canvas.after(20, self.fire_start)
+        else:
+            self.canvas.delete(self.start_dot_1)
+            self.canvas.delete(self.start_dot_2)
+
             self.wait -= 1
+            self.free -= 1
             self.inside += 1
+            self.busy +=1
+
             self.label_wait.configure(text = str(self.wait))
+            self.label_free.configure(text = str(self.free))
             self.label_inside.configure(text = str(self.inside))
-            self.label_marking.configure(text = "MARKING M = [" + str(self.wait) + ".wait, " 
-                                                    + str(self.inside) + ".inside, " + str(self.done) +".done]")
+            self.label_busy.configure(text = self.busy)
+
+            self.label_marking.configure(text = "MARKING M = [" + 
+                                str(self.free) + ".free, " + str(self.busy) + ",.busy " + str(self.docu) +".docu, " + 
+                                str(self.wait) + ".wait, " + str(self.inside) + ",.inside " + str(self.done) +".done]")
+            
             self.flag_fire_start *= -1
 
     def fire_change(self):
-        if self.flag_fire_change == -1:
-            self.change_dot = self.canvas.create_oval(280, 220, 290, 230, fill="black")
+        if self.flag_fire_change == -1:            
+            self.change_dot_1 = self.canvas.create_oval(580, 220, 590, 230, fill="black")
+            self.change_dot_2 = self.canvas.create_oval(580, 360, 590, 370, fill="black")
             self.flag_fire_change *= -1
 
-        if self.canvas.coords(self.change_dot)[0] != 380.0:
-            self.canvas.move(self.change_dot, 5, 0)
-        elif self.canvas.coords(self.change_dot)[1] != 120.0:
-            self.canvas.move(self.change_dot, 0, -5)
+        if (self.canvas.coords(self.change_dot_1)[0] < 680.0 
+            and self.canvas.coords(self.change_dot_1)[1] == 220.0):
+            self.canvas.move(self.change_dot_1, 100.0/8, 0)
+        elif (self.canvas.coords(self.change_dot_1)[0] < 785.0
+            and self.canvas.coords(self.change_dot_1)[1] == 220.0):
+            self.canvas.move(self.change_dot_1, 105.0/8, 0)
+        elif self.canvas.coords(self.change_dot_1)[1] < 500.0:
+            self.canvas.move(self.change_dot_1, 0, 280.0/16)
+        elif self.canvas.coords(self.change_dot_1)[0] > 580.0:
+            self.canvas.move(self.change_dot_1, -205.0/16, 0)
 
-        if self.canvas.coords(self.change_dot)[1] != 120.0:
+        if self.canvas.coords(self.change_dot_2)[0] < 680.0:
+            self.canvas.move(self.change_dot_2, 100.0/4, 0)       
+        elif self.canvas.coords(self.change_dot_2)[1] > 220.0:
+            self.canvas.move(self.change_dot_2, 0, -140.0/4)        
+        elif self.canvas.coords(self.change_dot_2)[1] > 120.0:
+            self.canvas.move(self.change_dot_2, 0, -100.0/40)
+
+
+        if (self.canvas.coords(self.change_dot_1)[0] != 580.0 
+            or self.canvas.coords(self.change_dot_1)[1] != 500.0):
             self.canvas.after(20, self.fire_change)
         else:
-            self.canvas.delete(self.change_dot)
-            self.done += 1
+            self.canvas.delete(self.change_dot_1)
+            self.canvas.delete(self.change_dot_2)
+
             self.inside -= 1
-            self.label_done.configure(text = str(self.done))
+            self.busy -=1
+            self.done += 1
+            self.docu += 1
+
             self.label_inside.configure(text = str(self.inside))
-            self.label_marking.configure(text = "MARKING M = [" + str(self.wait) + ".wait, " 
-                                                    + str(self.inside) + ".inside, " + str(self.done) +".done]")
+            self.label_busy.configure(text = str(self.busy))
+            self.label_done.configure(text = str(self.done))
+            self.label_docu.configure(text = str(self.docu))
+
+            self.label_marking.configure(text = "MARKING M = [" + 
+                                str(self.free) + ".free, " + str(self.busy) + ",.busy " + str(self.docu) +".docu, " + 
+                                str(self.wait) + ".wait, " + str(self.inside) + ",.inside " + str(self.done) +".done]")
+            
             self.flag_fire_change *= -1
 
+    def fire_end(self):
+        if self.flag_fire_end == -1: 
+            self.end_dot = self.canvas.create_oval(510, 500, 500, 510, fill="black")
+            self.flag_fire_end *= -1
+
+        if self.canvas.coords(self.end_dot)[0] > 260.0:
+            self.canvas.move(self.end_dot, -10, 0)
+        elif self.canvas.coords(self.end_dot)[1] > 260.0:
+            self.canvas.move(self.end_dot, 0, -10)
+
+        if self.canvas.coords(self.end_dot)[1] != 260.0:
+                self.canvas.after(20, self.fire_end)
+        else:
+            self.canvas.delete(self.end_dot)
+
+            self.free += 1
+            self.docu -= 1
+
+            self.label_free.configure(text = str(self.free))
+            self.label_docu.configure(text = str(self.docu))
+
+            self.label_marking.configure(text = "MARKING M = [" + 
+                                str(self.free) + ".free, " + str(self.busy) + ",.busy " + str(self.docu) +".docu, " + 
+                                str(self.wait) + ".wait, " + str(self.inside) + ",.inside " + str(self.done) +".done]")
+            
+            self.flag_fire_end *= -1
+
     def handle_fire(self):        
-        while (self.flag_auto == 1 and self.flag_fire_start != 1 and self.flag_fire_change != 1):
+        while (self.flag_auto == 1 and self.flag_fire_start != 1 
+               and self.flag_fire_change != 1 and self.flag_fire_end != 1):
             self.check_deadlock()
             self.fire()
-            time.sleep(1.35)
+            time.sleep(1.8)
 
     def fire(self):
-        if ((self.wait > 0 and self.inside == 0) or
-            (self.wait == 0 and self.inside > 0)):
-            if self.wait > 0:
+        if ((self.is_start_enable() and (not self.is_change_enable()) and (not self.is_end_enable())) or
+            ((not self.is_start_enable()) and (self.is_change_enable()) and (not self.is_end_enable())) or
+            ((not self.is_start_enable()) and (not self.is_change_enable()) and (self.is_end_enable()))):
+            if self.is_start_enable():
                 self.fire_start()
-            if self.inside > 0:
+            elif self.is_change_enable():
                 self.fire_change()
+            elif self.is_end_enable():
+                self.fire_end()
         
-        elif (self.wait > 0 and self.inside > 0):
+        elif self.is_start_enable() and (self.is_change_enable()) and (not self.is_end_enable()):
             prob = random.random()
             if prob <= 1.0/3:
                 self.fire_start()
@@ -382,19 +511,80 @@ class Petri:
             else:
                 self.fire_start()
                 self.fire_change()
+        
+        elif self.is_start_enable() and (not self.is_change_enable()) and (self.is_end_enable()):
+            prob = random.random()
+            if prob <= 1.0/3:
+                self.fire_start()
+            elif prob <= 2.0/3:
+                self.fire_end()
+            else:
+                self.fire_start()
+                self.fire_end()
+        
+        elif (not self.is_start_enable()) and (self.is_change_enable()) and (self.is_end_enable()):
+            prob = random.random()
+            if prob <= 1.0/3:
+                self.fire_end()
+            elif prob <= 2.0/3:
+                self.fire_change()
+            else:
+                self.fire_end()
+                self.fire_change()
+
+        elif self.is_start_enable() and self.is_change_enable() and self.is_end_enable():
+            prob = random.random()
+            if prob <= 1.0/7:
+                self.fire_start()
+            elif prob <= 2.0/7:
+                self. fire_change()
+            elif prob <= 3.0/7:
+                self.fire_end()
+            elif prob <= 4.0/7:
+                self.fire_start()
+                self.fire_end()
+            elif prob <= 5.0/7:
+                self.fire_start()
+                self.fire_change()
+            elif prob <= 6.0/7:
+                self.fire_end()
+                self.fire_change()
+            else:
+                self.fire_start()
+                self.fire_change()
+                self.fire_end()
 
     def check_deadlock(self):
-        if (self.wait == 0 and self.inside == 0):
+        if (not self.is_start_enable()) and (not self.is_change_enable()) and (not self.is_end_enable()):
             print("DEADLOCK")
             self.stop_fire()
 
+    def is_start_enable(self):
+        if self.wait > 0 and self.free > 0:
+            return True
+        else:
+            return False
+    
+    def is_change_enable(self):
+        if self.inside > 0 and self.busy > 0:
+            return True
+        else:
+            return False
+    
+    def is_end_enable(self):
+        if self.docu > 0:
+            return True
+        else: 
+            return False
+
     def handler(self):
         if self.flag_auto == 1: 
-            self.flag_auto = -1
+            self.stop_fire()
+            
         if self.flag_fire_change == 1 or self.flag_fire_end == 1 or self.flag_fire_start == 1: 
             tkinter.messagebox.showwarning('Lỗi', 'Vui lòng chờ, đang ngừng các chuyển tiếp ...')
+
         # if tkinter.messagebox.askokcancel("Quit app ?", "Are you sure to quit"):
-        if self.isSet == 1: self.stop_fire()
         self.master.destroy()
 
 if __name__ == "__main__":

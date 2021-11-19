@@ -146,6 +146,7 @@ class Petri:
                 tkinter.messagebox.showwarning('Lỗi nhập', 'Mỗi vị trí không chứa quá 1 token do yêu cầu đề')
             
             else:
+                self.isSet = 1
                 self.free = self.init_free = int(self.input_free.get())
                 self.busy = self.init_busy = int(self.input_busy.get())
                 self.docu = self.init_docu = int(self.input_docu.get())
@@ -162,8 +163,9 @@ class Petri:
         elif self.flag_auto == 1: pass
         else:
             self.flag_auto *= -1
-            # while (self.flag_auto == 1):
+
             print("AUTO FIRE MODE ON\n" + "-"*30)
+            
             self.thread_auto_fire = threading.Thread(target=self.handle_fire)
             self.thread_auto_fire.start()   
     
@@ -387,11 +389,12 @@ class Petri:
 
     def handler(self):
         if self.flag_auto == 1: 
-            self.flag_auto = -1
+            self.stop_fire()
+            
         if self.flag_fire_change == 1 or self.flag_fire_end == 1 or self.flag_fire_start == 1: 
             tkinter.messagebox.showwarning('Lỗi', 'Vui lòng chờ, đang ngừng các chuyển tiếp ...')
+
         if tkinter.messagebox.askokcancel("Quit app ?", "Are you sure to quit"):
-            if self.isSet == 1: self.stop_fire()
             self.master.destroy()
 
 if __name__ == "__main__":

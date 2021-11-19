@@ -134,6 +134,7 @@ class Petri:
                             and self.input_done.get().isnumeric())):
                 tkinter.messagebox.showwarning('Lỗi nhập', 'Vui lòng nhập các số nguyên không âm !!!')
             else:
+                self.isSet = 1
                 self.wait = self.init_wait = int(self.input_wait.get())
                 self.inside = self.init_inside = int(self.input_inside.get())
                 self.done = self.init_done = int(self.input_done.get())
@@ -150,8 +151,9 @@ class Petri:
         elif self.flag_auto == 1: pass
         else:
             self.flag_auto *= -1
-            # while (self.flag_auto == 1):
+
             print("AUTO FIRE MODE ON\n" + "-"*30)
+            
             self.thread_auto_fire = threading.Thread(target=self.handle_fire)
             self.thread_auto_fire.start()   
     
@@ -315,11 +317,12 @@ class Petri:
 
     def handler(self):
         if self.flag_auto == 1: 
-            self.flag_auto = -1
+            self.stop_fire()
+
         if self.flag_fire_change == 1 or self.flag_fire_start == 1: 
             tkinter.messagebox.showwarning('Lỗi', 'Vui lòng chờ, đang ngừng các chuyển tiếp ...')
+
         if tkinter.messagebox.askokcancel("Quit app ?", "Are you sure to quit"):
-            if self.isSet == 1: self.stop_fire()
             self.master.destroy()
 
 if __name__ == "__main__":
