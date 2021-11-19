@@ -570,8 +570,8 @@ class Petri:
         if self.flag_fire_change == 1 or self.flag_fire_end == 1 or self.flag_fire_start == 1: 
             tkinter.messagebox.showwarning('Lỗi', 'Vui lòng chờ, đang ngừng các chuyển tiếp ...')
 
-        # if tkinter.messagebox.askokcancel("Quit app ?", "Are you sure to quit"):
-        self.master.destroy()
+        if tkinter.messagebox.askokcancel("Quit app ?", "Are you sure to quit"):
+            self.master.destroy()
 
 if __name__ == "__main__":
     root = Tk()
