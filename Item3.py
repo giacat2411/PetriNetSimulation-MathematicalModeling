@@ -13,33 +13,19 @@ class Petri:
         self.state = 0
         self.transition = 0
 
-        # self.init_wait = ""
-        # self.init_inside = ""
-        # self.init_done = ""
-        # self.init_free = ""
-        # self.init_busy = ""
-        # self.init_docu = ""
+        self.init_wait = ""
+        self.init_inside = ""
+        self.init_done = ""
+        self.init_free = ""
+        self.init_busy = ""
+        self.init_docu = ""
         
-        # self.free = ""
-        # self.busy = ""
-        # self.docu = ""
-        # self.wait = ""
-        # self.inside = ""
-        # self.done = ""
-
-        self.init_wait = 10
-        self.init_inside = 10
-        self.init_done = 10
-        self.init_free = 10
-        self.init_busy = 10
-        self.init_docu = 10
-        
-        self.free = 10
-        self.busy = 10
-        self.docu = 10
-        self.wait = 10
-        self.inside = 10
-        self.done = 10
+        self.free = ""
+        self.busy = ""
+        self.docu = ""
+        self.wait = ""
+        self.inside = ""
+        self.done = ""
 
         self.flag_fire_start = -1
         self.flag_fire_change = -1
