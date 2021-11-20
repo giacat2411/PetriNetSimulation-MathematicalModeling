@@ -90,6 +90,8 @@ class PetriLauncher:
 
     def handler(self):
         if tkinter.messagebox.askokcancel("Quit app ?", "Are you sure to quit"):
+            if (self.app.isClosed == -1):
+                self.windows.destroy()
             self.master.destroy()
 
 if __name__ == "__main__":
