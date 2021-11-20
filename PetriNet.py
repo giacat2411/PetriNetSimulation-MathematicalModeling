@@ -1,103 +1,47 @@
-from tkinter import *
-import tkinter.messagebox
+class PetriNet:
+    def __init__(self, master): pass
+    def createWidgets(self): pass
 
-from Item1_bi import Item1_bi
-from Item1_bii import Item1_bii
-from Item2 import Item2
-from Item3 import Item3
+    # ----------------------------------------------------------------------------------
+    # FEATURE MAIN FUNCTION
+    def setup(self): pass
+    def reset(self): pass
+    def auto_fire(self): pass      
+    def stop_fire(self): pass 
+    def transition_system(self): pass
+    def firing_sequence(self): pass
+    # ----------------------------------------------------------------------------------
 
-class PetriLauncher:
-    def __init__(self, master):
-        self.master = master
-        self.master.protocol("WM_DELETE_WINDOW", self.handler)
+    # ----------------------------------------------------------------------------------
+    # TRANSITION SYSTEM 
+    def find_transition_relation(self, marking): pass
+    def find_near_marking(self, current_marking): pass 
+    # ----------------------------------------------------------------------------------
 
-        self.windows = ""
+    # ----------------------------------------------------------------------------------
+    # FIRING SEQUENCE
+    def find_firing_sequence(self, current_marking, sequence): pass
+    def find_next_sequence(self, current_marking, sequence): pass
 
-        self.createWidgets()
+    # ----------------------------------------------------------------------------------
+    # HANDLE USER CLICK ON FIRING
+    def onClick(self, event): pass 
+    def fire_start(self): pass     
+    def fire_change(self): pass     
+    def fire_end(self): pass
+    # ----------------------------------------------------------------------------------
+    
+    # ----------------------------------------------------------------------------------
+    # AUTO FIRE     
+    def handle_fire(self): pass          
+    def fire(self): pass    
+    # ----------------------------------------------------------------------------------
 
-    def createWidgets(self):
-        self.item1_bi_button = Button(self.master, width=16, padx=3, pady=3)
-        self.item1_bi_button['text'] = "ITEM 1B.I"
-        self.item1_bi_button['command'] = self.load_1b_i
-        self.item1_bi_button.grid(row=0, column=0, padx=2, pady=2)
-
-        self.item1_bii_button = Button(self.master, width=16, padx=3, pady=3)
-        self.item1_bii_button['text'] = "ITEM 1B.II"
-        self.item1_bii_button['command'] = self.load_1b_ii
-        self.item1_bii_button.grid(row=0, column=1, padx=2, pady=2)
-
-        self.item2_button = Button(self.master, width=16, padx=3, pady=3)
-        self.item2_button['text'] = "ITEM 2"
-        self.item2_button['command'] = self.load_2
-        self.item2_button.grid(row=1, column=0, padx=2, pady=2)
-
-        self.item3_button = Button(self.master, width=16, padx=3, pady=3)
-        self.item3_button['text'] = "ITEM 3"
-        self.item3_button['command'] = self.load_3
-        self.item3_button.grid(row=1, column=1, padx=2, pady=2)
-
-    def load_1b_i(self):
-        if self.windows == "": 
-            self.windows = Tk()
-        elif self.app.isClosed == 1:
-            self.windows = Tk()
-        else:
-            self.windows.destroy()
-            self.windows = Tk()
-
-        self.app = Item1_bi(self.windows)
-        self.app.master.title("Item 1b.i - Assignment - Petri Net")
-        self.windows.mainloop()
-
-    def load_1b_ii(self):
-        if self.windows == "": 
-            self.windows = Tk()
-        elif self.app.isClosed == 1:
-            self.windows = Tk()
-        else:
-            self.windows.destroy()
-            self.windows = Tk()
-
-        self.app = Item1_bii(self.windows)
-        self.app.master.title("Item 1b.ii - Assignment - Petri Net")
-        self.windows.mainloop()
-
-    def load_2(self):
-        if self.windows == "": 
-            self.windows = Tk()
-        elif self.app.isClosed == 1:
-            self.windows = Tk()
-        else:
-            self.windows.destroy()
-            self.windows = Tk()
-
-        self.app = Item2(self.windows)
-        self.app.master.title("Item 2 - Assignment - Petri Net")
-        self.windows.mainloop()
-
-    def load_3(self):
-        if self.windows == "": 
-            self.windows = Tk()
-        elif self.app.isClosed == 1:
-            self.windows = Tk()
-        else:
-            self.windows.destroy()
-            self.windows = Tk()
-
-        self.app = Item3(self.windows)
-        self.app.master.title("Item 3 - Assignment - Petri Net")
-        self.windows.mainloop()
-
-    def handler(self):
-        if tkinter.messagebox.askokcancel("Quit app ?", "Are you sure to quit"):
-            if (self.app.isClosed == -1):
-                self.windows.destroy()
-            self.master.destroy()
-
-if __name__ == "__main__":
-    root = Tk()
-
-    app = PetriLauncher(root)
-    app.master.title("Assignment - Petri Net")
-
-    root.mainloop()
+    # ----------------------------------------------------------------------------------
+    # HELPER FUNCTION
+    def check_deadlock(self): pass 
+    def is_start_enable(self): pass    
+    def is_change_enable(self): pass   
+    def is_end_enable(self): pass    
+    def handler(self): pass
+    # ----------------------------------------------------------------------------------

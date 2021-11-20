@@ -3,8 +3,9 @@ import tkinter.messagebox
 import threading
 import random
 import time
+from PetriNet import PetriNet
 
-class Item3:
+class Item3_4(PetriNet):
     def __init__(self, master):
         self.master = master
         self.master.protocol("WM_DELETE_WINDOW", self.handler)
@@ -12,6 +13,7 @@ class Item3:
         self.markings = []
         self.state = 0
         self.transition = 0
+        self.nums_sequence = 0
 
         self.init_wait = ""
         self.init_inside = ""
@@ -40,11 +42,14 @@ class Item3:
         self.createWidgets()
         
     def createWidgets(self):
-        # _____ CREATE GUI _____
+        # ----------------------------------------------------------------------------------
+        # CREATE GUI
         self.canvas = Canvas(self.master, bg="white", height="550")
         self.canvas.pack()
         self.canvas.grid(row=0, column=0, columnspan=12, sticky=W+E+N+S, padx=3, pady=3)
+        # ----------------------------------------------------------------------------------
 
+        # ----------------------------------------------------------------------------------
         # CREATE PLACE AND LABEL IT
         self.canvas.create_oval(370, 50, 440, 120) # WAIT
         self.canvas.create_oval(510, 190, 580, 260) # INSIDE
@@ -100,24 +105,28 @@ class Item3:
         self.label_docu = Label(self.canvas, text = "0", bg="white")
         self.label_docu.pack()
         self.canvas.create_window(545, 505, window = self.label_docu)
+        # ----------------------------------------------------------------------------------
 
+        # ----------------------------------------------------------------------------------
         # CREATE TRANSITION, ADD USER CLICK AND LABEL IT
         self.canvas.create_rectangle(370, 190, 440, 260, tag="start") # START
         self.canvas.create_rectangle(650, 190, 720, 260, tag="change") # CHANGE
         self.canvas.create_rectangle(230, 470, 300, 540, tag="end") # END
 
-        # widget = Label(self.canvas, text='START', bg="white")
-        # widget.pack()
-        # self.canvas.create_window(405, 245, window = widget)
+        widget = Label(self.canvas, text='START', bg="white", padx=0, pady=0)
+        widget.pack()
+        self.canvas.create_window(405, 250, window = widget)
 
-        # widget = Label(self.canvas, text='CHANGE', bg="white")
-        # widget.pack()
-        # self.canvas.create_window(685, 245, window = widget)
+        widget = Label(self.canvas, text='CHANGE', bg="white", padx=0, pady=0)
+        widget.pack()
+        self.canvas.create_window(685, 250, window = widget)
 
-        # widget = Label(self.canvas, text='END', bg="white")
-        # widget.pack()
-        # self.canvas.create_window(265, 525, window = widget)
+        widget = Label(self.canvas, text='END', bg="white", padx=0, pady=0)
+        widget.pack()
+        self.canvas.create_window(265, 530, window = widget)
+        # ----------------------------------------------------------------------------------
 
+        # ----------------------------------------------------------------------------------
         # FLOW RELATION
         self.canvas.create_line(440, 225, 510, 225, arrow=tkinter.LAST) # START -> INSIDE
         self.canvas.create_line(580, 225, 650, 225, arrow=tkinter.LAST) # INSIDE -> CHANGE
@@ -133,7 +142,9 @@ class Item3:
         self.canvas.create_line(790, 505, 580, 505, arrow=tkinter.LAST) # CHANGE -> DOCU
         self.canvas.create_line(510, 505, 300, 505, arrow=tkinter.LAST) # DOCU -> END
         self.canvas.create_line(265, 470, 265, 260, arrow=tkinter.LAST) # END -> FREE
+        # ----------------------------------------------------------------------------------
 
+        # ----------------------------------------------------------------------------------
         # FORM
         Label(self.master, text = "FREE").grid(row = 1, column = 0)
         self.input_free = Entry(self.master)
@@ -158,12 +169,19 @@ class Item3:
         Label(self.master, text = "DONE").grid(row = 1, column = 10)
         self.input_done = Entry(self.master)
         self.input_done.grid(row = 1, column = 11)
+        # ----------------------------------------------------------------------------------
 
+        # ----------------------------------------------------------------------------------
         # BUTTON
-        self.init_button = Button(self.master, width=16, padx=3, pady=3)
-        self.init_button['text'] = "SET"
-        self.init_button['command'] = self.setup
-        self.init_button.grid(row=2, column=3, padx=2, pady=2)
+        self.setup_button = Button(self.master, width=16, padx=3, pady=3)
+        self.setup_button['text'] = "SETUP"
+        self.setup_button['command'] = self.setup
+        self.setup_button.grid(row=2, column=1, padx=2, pady=2)
+
+        self.reset_button = Button(self.master, width=16, padx=3, pady=3)
+        self.reset_button['text'] = "RESET"
+        self.reset_button['command'] = self.reset
+        self.reset_button.grid(row=2, column=3, padx=2, pady=2)
 
         self.auto_button = Button(self.master, width=16, padx=3, pady=3)
         self.auto_button['text'] = "AUTO FIRE"
@@ -175,20 +193,29 @@ class Item3:
         self.stop_button['command'] = self.stop_fire
         self.stop_button.grid(row=2, column=7, padx=2, pady=2)
 
-        self.marking_button = Button(self.master, width=16, padx=3, pady=3)
-        self.marking_button['text'] = "MARKING"
-        self.marking_button['command'] = self.marking
-        self.marking_button.grid(row=2, column=9, padx=2, pady=2)
+        self.ts_button = Button(self.master, width=16, padx=3, pady=3)
+        self.ts_button['text'] = "TRANSITION SYSTEM"
+        self.ts_button['command'] = self.transition_system
+        self.ts_button.grid(row=2, column=9, padx=2, pady=2)
+
+        self.firing_sequence_button = Button(self.master, width=16, padx=3, pady=3)
+        self.firing_sequence_button['text'] = "FIRING SEQUENCE"
+        self.firing_sequence_button['command'] = self.firing_sequence
+        self.firing_sequence_button.grid(row=2, column=11, padx=2, pady=2)
 
         self.canvas.bind("<Button-1>", self.onClick)
+        # ----------------------------------------------------------------------------------
 
+        # ----------------------------------------------------------------------------------
         # LABEL MARKING
-        self.label_marking = Label(self.canvas, text = "MARKING M = [" + 
-                                str(self.free) + ".free, " + str(self.busy) + ",.busy " + str(self.docu) +".docu, " + 
-                                str(self.wait) + ".wait, " + str(self.inside) + ",.inside " + str(self.done) +".done]" 
+        self.label_marking = Label(self.canvas, text = "MARKING M = [" + str(self.wait) + ".wait, " 
+                                                    + str(self.inside) + ".inside, " + str(self.done) +".done, "
+                                                    + str(self.free) + ".free, " + str(self.busy) + ".busy, "
+                                                    + str(self.docu)+ ".docu]" 
                                                 , bg="white")
         self.label_marking.pack()
         self.canvas.create_window(490, 10, window = self.label_marking)
+        # ----------------------------------------------------------------------------------
 
     def setup(self):
         print("SETUP\n" + "-"*30)
@@ -197,12 +224,14 @@ class Item3:
         self.transition = 0
 
         if self.flag_auto == 1:
-            tkinter.messagebox.showwarning('Lỗi', 'Không thể SET khi đang AUTO FIRE !!!')
+            tkinter.messagebox.showwarning('Lỗi', 'Không thể SETUP khi đang AUTO FIRE !!!')
+            print("FAILED\n"  + "-"*30)
         else: 
             if (not (self.input_wait.get().isnumeric() and self.input_inside.get().isnumeric()
                     and self.input_done.get().isnumeric() and self.input_free.get().isnumeric()
                     and self.input_busy.get().isnumeric() and self.input_docu.get().isnumeric())):
                 tkinter.messagebox.showwarning('Lỗi nhập', 'Vui lòng nhập các số nguyên không âm !!!')
+                print("FAILED\n"  + "-"*30)
             else:
                 self.free = self.init_free = int(self.input_free.get())
                 self.busy = self.init_busy = int(self.input_busy.get())
@@ -217,9 +246,51 @@ class Item3:
                 self.label_wait.configure(text = str(self.init_wait))
                 self.label_inside.configure(text = str(self.init_inside))
                 self.label_done.configure(text = str(self.init_done))
-                self.label_marking.configure(text = "MARKING M_0 = [" + 
-                                str(self.free) + ".free, " + str(self.busy) + ",.busy " + str(self.docu) +".docu, " + 
-                                str(self.wait) + ".wait, " + str(self.inside) + ",.inside " + str(self.done) +".done]" )
+                self.label_marking.configure(text = "MARKING M_0 = [" + str(self.wait) + ".wait, " 
+                                                    + str(self.inside) + ".inside, " + str(self.done) +".done, "
+                                                    + str(self.free) + ".free, " + str(self.busy) + ".busy, "
+                                                    + str(self.docu)+ ".docu]")
+                print("SUCCESSFUL")
+                print("Initial Marking: M0 = [" + str(self.wait) + ".wait, " 
+                                                    + str(self.inside) + ".inside, " + str(self.done) +".done, "
+                                                    + str(self.free) + ".free, " + str(self.busy) + ".busy, "
+                                                    + str(self.docu)+ ".docu]\n"   + "-"*30)
+    
+    def reset(self):
+        print("RESET")
+        if (self.init_wait == "" and self.init_inside == "" and self.init_done == "" 
+            and self.init_free == "" and self.init_busy == "" and self.init_docu == ""):
+            tkinter.messagebox.showwarning('Lỗi', 'Vui lòng bấm SETUP để khởi tạo MARKING trước khi dùng các chức năng khác!')
+            print("FAILED\n"  + "-"*30)
+
+        elif self.flag_auto == 1:
+            tkinter.messagebox.showwarning('Lỗi', 'Không thể RESET khi đang AUTO FIRE !!!')
+            print("FAILED\n"  + "-"*30)
+
+        else:
+            self.wait = self.init_wait
+            self.inside = self.init_inside
+            self.done = self.init_done
+            self.free = self.init_free
+            self.busy = self.init_busy
+            self.docu = self.init_docu
+
+            self.label_wait.configure(text = str(self.init_wait))
+            self.label_inside.configure(text = str(self.init_inside))
+            self.label_done.configure(text = str(self.init_done))
+            self.label_free.configure(text = str(self.init_free))
+            self.label_busy.configure(text = str(self.init_busy))
+            self.label_docu.configure(text = str(self.init_docu))
+
+            self.label_marking.configure(text = "MARKING M_0 = [" + str(self.wait) + ".wait, " 
+                                                    + str(self.inside) + ".inside, " + str(self.done) +".done, "
+                                                    + str(self.free) + ".free, " + str(self.busy) + ".busy, "
+                                                    + str(self.docu)+ ".docu]")
+            print("SUCCESSFUL")
+            print("Initial Marking: M0 = [" + str(self.wait) + ".wait, " 
+                                                    + str(self.inside) + ".inside, " + str(self.done) +".done, "
+                                                    + str(self.free) + ".free, " + str(self.busy) + ".busy, "
+                                                    + str(self.docu)+ ".docu]\n"   + "-"*30)
 
     def auto_fire(self):
         if (self.init_wait == "" and self.init_inside == "" and self.init_done == "" 
@@ -242,12 +313,12 @@ class Item3:
             self.flag_auto *= -1
             print("AUTO FIRE MODE OFF\n" + "-"*30)
 
-    def marking(self):
+    def transition_system(self):
         if (self.init_wait == "" and self.init_inside == "" and self.init_done == "" 
             and self.init_free == "" and self.init_busy == "" and self.init_docu == ""):
             tkinter.messagebox.showwarning('Lỗi', 'Vui lòng bấm SET để khởi tạo Marking ban đầu !!!')
         else:
-            # FORM MARKING: [x.free, y.busy, z.docu, a.wait, b.inside, c.done]
+            # FORM MARKING: [x.wait, y.inside, z.done, a.free, b.busy, c.docu]
             print("TRANSITION SYSTEM")
             self.markings = []
             self.state = 0
@@ -257,17 +328,17 @@ class Item3:
             self.markings.append(current_marking)
             self.state += 1
 
-            self.find_marking(self.markings[0])
+            self.find_transition_relation(self.markings[0])
             
             print(str(self.state) + " states")
             print(str(self.transition) + " transitions\n" + "-"*30)
 
-    def find_marking(self, marking): 
-        near = self.near_marking(marking)
+    def find_transition_relation(self, marking): 
+        near = self.find_near_marking(marking)
         for i in range (0, len(near)):
-            self.find_marking(near[i])
+            self.find_transition_relation(near[i])
     
-    def near_marking(self, current_marking):
+    def find_near_marking(self, current_marking):
         near = []
         if (current_marking[0] > 0 and current_marking[3] > 0):
             self.transition += 1
@@ -330,6 +401,125 @@ class Item3:
                 self.state += 1     
         return near
 
+    def firing_sequence(self):
+        if (self.init_wait == "" and self.init_inside == "" and self.init_done == "" 
+            and self.init_free == "" and self.init_busy == "" and self.init_docu == ""):
+            tkinter.messagebox.showwarning('Lỗi', 'Vui lòng bấm SET để khởi tạo Marking ban đầu !!!')
+        else:
+            # FORM MARKING: [x.wait, y.inside, z.done, a.free, b.busy, c.docu]
+            print("FIRING SEQUENCE")
+            self.markings = []
+            sequence = ""
+            self.nums_sequence = 0
+
+            current_marking = [self.init_free, self.init_busy, self.init_docu, self.init_wait, self.init_inside, self.init_done]
+            self.markings.append(current_marking)
+
+            self.find_firing_sequence(self.markings[0], sequence)
+            print("Initial Marking: M0 = [" + str(self.wait) + ".wait, " 
+                                                    + str(self.inside) + ".inside, " + str(self.done) +".done, "
+                                                    + str(self.free) + ".free, " + str(self.busy) + ".busy, "
+                                                    + str(self.docu)+ ".docu]\n"   + "-"*30)
+            print(str(self.nums_sequence) + " firing sequence\n" + "-"*30)
+
+    def find_firing_sequence(self, current_marking, sequence):
+        next_sequence = self.find_next_sequence(current_marking, sequence)
+        for i in range (0, len(next_sequence["next"])):
+            self.find_firing_sequence(next_sequence["next"][i], next_sequence["firing"][i])
+
+    def find_next_sequence(self, current_marking, sequence):
+        next = []
+        firing = []
+
+        if (current_marking[0] > 0 and current_marking[3] > 0):
+            marking = [current_marking[0] - 1, current_marking[1] + 1, current_marking[2]   
+                      ,current_marking[3] - 1, current_marking[4] + 1, current_marking[5]]
+            self.nums_sequence += 1
+
+            if sequence == "":
+                print("[M0 ; ("+ sequence + "START)> " 
+                        + "[" + str(marking[3]) + ".wait, " + str(marking[4]) + ".inside, " 
+                        + str(marking[5]) + ".done, "
+                        + str(marking[0]) + ".free, " + str(marking[1]) + ".busy, " 
+                        + str(marking[2]) + ".docu]")
+            else:
+                print("[M0 ; ("+ sequence + ", START)> " 
+                        + "[" + str(marking[3]) + ".wait, " + str(marking[4]) + ".inside, " 
+                        + str(marking[5]) + ".done, "
+                        + str(marking[0]) + ".free, " + str(marking[1]) + ".busy, " 
+                        + str(marking[2]) + ".docu]")
+            
+            if (marking in self.markings): pass
+            else: 
+                next.append(marking)
+
+                if sequence == "": 
+                    firing.append(sequence + "START")
+                else:
+                    firing.append(sequence + ", START")
+
+                self.markings.append(marking)
+
+        if (current_marking[1] > 0 and current_marking[4] > 0):
+            self.nums_sequence += 1
+            marking = [current_marking[0], current_marking[1] - 1, current_marking[2] + 1 
+                      ,current_marking[3], current_marking[4] - 1, current_marking[5] + 1]    
+
+            if sequence == "":
+                print("[M0 ; ("+ sequence + "CHANGE)> " 
+                        + "[" + str(marking[3]) + ".wait, " + str(marking[4]) + ".inside, " 
+                        + str(marking[5]) + ".done, "
+                        + str(marking[0]) + ".free, " + str(marking[1]) + ".busy, " 
+                        + str(marking[2]) + ".docu]")
+            else:
+                print("[M0 ; ("+ sequence + ", CHANGE)> " 
+                        + "[" + str(marking[3]) + ".wait, " + str(marking[4]) + ".inside, " 
+                        + str(marking[5]) + ".done, "
+                        + str(marking[0]) + ".free, " + str(marking[1]) + ".busy, " 
+                        + str(marking[2]) + ".docu]")
+            
+            if (marking in self.markings): pass
+            else: 
+                next.append(marking)
+
+                if sequence == "": 
+                    firing.append(sequence + "CHANGE")
+                else:
+                    firing.append(sequence + ", CHANGE")
+
+                self.markings.append(marking)
+
+        if (current_marking[2] > 0):
+            self.nums_sequence += 1
+            marking = [current_marking[0] + 1, current_marking[1], current_marking[2] - 1 
+                      ,current_marking[3], current_marking[4], current_marking[5]]    
+
+            if sequence == "":
+                print("[M0 ; ("+ sequence + "END)> " 
+                        + "[" + str(marking[3]) + ".wait, " + str(marking[4]) + ".inside, " 
+                        + str(marking[5]) + ".done, "
+                        + str(marking[0]) + ".free, " + str(marking[1]) + ".busy, " 
+                        + str(marking[2]) + ".docu]")
+            else:
+                print("[M0 ; ("+ sequence + ", END)> " 
+                        + "[" + str(marking[3]) + ".wait, " + str(marking[4]) + ".inside, " 
+                        + str(marking[5]) + ".done, "
+                        + str(marking[0]) + ".free, " + str(marking[1]) + ".busy, " 
+                        + str(marking[2]) + ".docu]")
+            
+            if (marking in self.markings): pass
+            else: 
+                next.append(marking)
+
+                if sequence == "": 
+                    firing.append(sequence + "END")
+                else:
+                    firing.append(sequence + ", END")
+
+                self.markings.append(marking)
+
+        return { "next": next, "firing": firing }
+
     def onClick(self, event):
         if (self.init_wait == "" and self.init_inside == "" and self.init_done == "" 
             and self.init_free == "" and self.init_busy == "" and self.init_docu == ""):
@@ -364,7 +554,13 @@ class Item3:
         if self.flag_fire_start == -1:
             self.start_dot_1 = self.canvas.create_oval(300, 220, 310, 230, fill="black")
             self.start_dot_2 = self.canvas.create_oval(400, 120, 410, 130, fill="black")
+
             self.flag_fire_start *= -1
+            self.wait -= 1
+            self.free -= 1
+
+            self.label_wait.configure(text = str(self.wait))
+            self.label_free.configure(text = str(self.free))
 
         if self.canvas.coords(self.start_dot_1)[0] < 500.0:
             self.canvas.move(self.start_dot_1, 100.0/24, 0)
@@ -382,19 +578,16 @@ class Item3:
             self.canvas.delete(self.start_dot_1)
             self.canvas.delete(self.start_dot_2)
 
-            self.wait -= 1
-            self.free -= 1
             self.inside += 1
             self.busy +=1
 
-            self.label_wait.configure(text = str(self.wait))
-            self.label_free.configure(text = str(self.free))
             self.label_inside.configure(text = str(self.inside))
             self.label_busy.configure(text = self.busy)
 
-            self.label_marking.configure(text = "MARKING M = [" + 
-                                str(self.free) + ".free, " + str(self.busy) + ",.busy " + str(self.docu) +".docu, " + 
-                                str(self.wait) + ".wait, " + str(self.inside) + ",.inside " + str(self.done) +".done]")
+            self.label_marking.configure(text = "MARKING M = [" + str(self.wait) + ".wait, " 
+                                                    + str(self.inside) + ".inside, " + str(self.done) +".done, "
+                                                    + str(self.free) + ".free, " + str(self.busy) + ".busy, "
+                                                    + str(self.docu)+ ".docu]")
             
             self.flag_fire_start *= -1
 
@@ -402,7 +595,13 @@ class Item3:
         if self.flag_fire_change == -1:            
             self.change_dot_1 = self.canvas.create_oval(580, 220, 590, 230, fill="black")
             self.change_dot_2 = self.canvas.create_oval(580, 360, 590, 370, fill="black")
+
             self.flag_fire_change *= -1
+            self.inside -= 1
+            self.busy -=1
+
+            self.label_inside.configure(text = str(self.inside))
+            self.label_busy.configure(text = str(self.busy))
 
         if (self.canvas.coords(self.change_dot_1)[0] < 680.0 
             and self.canvas.coords(self.change_dot_1)[1] == 220.0):
@@ -430,26 +629,27 @@ class Item3:
             self.canvas.delete(self.change_dot_1)
             self.canvas.delete(self.change_dot_2)
 
-            self.inside -= 1
-            self.busy -=1
             self.done += 1
             self.docu += 1
 
-            self.label_inside.configure(text = str(self.inside))
-            self.label_busy.configure(text = str(self.busy))
             self.label_done.configure(text = str(self.done))
             self.label_docu.configure(text = str(self.docu))
 
-            self.label_marking.configure(text = "MARKING M = [" + 
-                                str(self.free) + ".free, " + str(self.busy) + ",.busy " + str(self.docu) +".docu, " + 
-                                str(self.wait) + ".wait, " + str(self.inside) + ",.inside " + str(self.done) +".done]")
+            self.label_marking.configure(text = "MARKING M = [" + str(self.wait) + ".wait, " 
+                                                    + str(self.inside) + ".inside, " + str(self.done) +".done, "
+                                                    + str(self.free) + ".free, " + str(self.busy) + ".busy, "
+                                                    + str(self.docu)+ ".docu]")
             
             self.flag_fire_change *= -1
 
     def fire_end(self):
         if self.flag_fire_end == -1: 
             self.end_dot = self.canvas.create_oval(510, 500, 500, 510, fill="black")
+
             self.flag_fire_end *= -1
+            self.docu -= 1
+
+            self.label_docu.configure(text = str(self.docu))
 
         if self.canvas.coords(self.end_dot)[0] > 260.0:
             self.canvas.move(self.end_dot, -10, 0)
@@ -462,14 +662,12 @@ class Item3:
             self.canvas.delete(self.end_dot)
 
             self.free += 1
-            self.docu -= 1
-
             self.label_free.configure(text = str(self.free))
-            self.label_docu.configure(text = str(self.docu))
 
-            self.label_marking.configure(text = "MARKING M = [" + 
-                                str(self.free) + ".free, " + str(self.busy) + ",.busy " + str(self.docu) +".docu, " + 
-                                str(self.wait) + ".wait, " + str(self.inside) + ",.inside " + str(self.done) +".done]")
+            self.label_marking.configure(text = "MARKING M = [" + str(self.wait) + ".wait, " 
+                                                    + str(self.inside) + ".inside, " + str(self.done) +".done, "
+                                                    + str(self.free) + ".free, " + str(self.busy) + ".busy, "
+                                                    + str(self.docu)+ ".docu]")
             
             self.flag_fire_end *= -1
 
@@ -576,11 +774,3 @@ class Item3:
         if tkinter.messagebox.askokcancel("Quit app ?", "Are you sure to quit"):
             self.isClosed = 1
             self.master.destroy()
-
-if __name__ == "__main__":
-    root = Tk()
-
-    app = Item3(root)
-    app.master.title("Item 3 - Assignment - Petri Net")
-
-    root.mainloop()
