@@ -4,7 +4,7 @@ import threading
 import random
 import time
 
-class Petri:
+class Item1_bii:
     def __init__(self, master):
         self.master = master
         self.master.protocol("WM_DELETE_WINDOW", self.handler)
@@ -23,6 +23,7 @@ class Petri:
         self.flag_fire_end = -1
         self.isSet = -1
         self.deadlock = -1
+        self.isClosed = -1
         self.createWidgets()
         
 
@@ -161,7 +162,7 @@ class Petri:
             self.flag_auto *= -1
 
             print("AUTO FIRE MODE ON\n" + "-"*30)
-            
+
             self.thread_auto_fire = threading.Thread(target=self.handle_fire)
             self.thread_auto_fire.start()   
     
@@ -416,12 +417,13 @@ class Petri:
             tkinter.messagebox.showwarning('Lỗi', 'Vui lòng chờ, đang ngừng các chuyển tiếp ...')
 
         if tkinter.messagebox.askokcancel("Quit app ?", "Are you sure to quit"):
+            self.isClosed = 1
             self.master.destroy()
 
 if __name__ == "__main__":
     root = Tk()
 
-    app = Petri(root)
+    app = Item1_bii(root)
     app.master.title("Item 1bii - Assignment - Petri Net")
 
     root.mainloop()

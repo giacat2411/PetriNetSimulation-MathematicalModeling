@@ -4,7 +4,7 @@ import threading
 import random
 import time
 
-class Petri:
+class Item3:
     def __init__(self, master):
         self.master = master
         self.master.protocol("WM_DELETE_WINDOW", self.handler)
@@ -34,6 +34,9 @@ class Petri:
         self.flag_auto = -1
         self.isSet = -1
         self.deadlock = -1
+
+        self.isClosed = -1
+
         self.createWidgets()
         
     def createWidgets(self):
@@ -571,12 +574,13 @@ class Petri:
             tkinter.messagebox.showwarning('Lỗi', 'Vui lòng chờ, đang ngừng các chuyển tiếp ...')
 
         if tkinter.messagebox.askokcancel("Quit app ?", "Are you sure to quit"):
+            self.isClosed = 1
             self.master.destroy()
 
 if __name__ == "__main__":
     root = Tk()
 
-    app = Petri(root)
+    app = Item3(root)
     app.master.title("Item 3 - Assignment - Petri Net")
 
     root.mainloop()
