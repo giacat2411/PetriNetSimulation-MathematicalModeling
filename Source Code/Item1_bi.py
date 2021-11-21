@@ -6,38 +6,7 @@ import time
 from pyvis.network import Network
 from PetriNet import PetriNet
 
-class Item1_bi(PetriNet):
-    def __init__(self, master):
-        self.master = master
-        self.master.protocol("WM_DELETE_WINDOW", self.handler)
-
-        self.markings = []
-        self.state = 0
-        self.transition = 0
-        self.nums_sequence = 0
-
-        self.graph = ""
-
-        self.init_free = ""
-        self.init_busy = ""
-        self.init_docu = ""
-        
-        self.free = ""
-        self.busy = ""
-        self.docu = ""
-
-        self.flag_auto = -1
-        self.isSet = -1
-        self.deadlock = -1
-
-        self.flag_fire_start = -1
-        self.flag_fire_change = -1
-        self.flag_fire_end = -1
-
-        self.isClosed = -1
-
-        self.createWidgets()
-        
+class Item1_bi(PetriNet):        
     def createWidgets(self):
         # ----------------------------------------------------------------------------------
         # CREATE GUI 
