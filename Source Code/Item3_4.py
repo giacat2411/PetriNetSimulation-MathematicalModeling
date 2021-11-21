@@ -292,7 +292,8 @@ class Item3_4(PetriNet):
             self.transition = 0
             self.graph = Network(directed = True)
 
-            current_marking = [self.free, self.busy, self.docu, self.init_wait, self.init_inside, self.init_done]
+            current_marking = [self.init_free, self.init_busy, self.init_docu, 
+                                self.init_wait, self.init_inside, self.init_done]
             self.markings.append(current_marking)
             self.graph.add_node(0, label=str("[" + str(current_marking[3]) + ", " 
                                     + str(current_marking[4]) + ", " + str(current_marking[5]) + ", " 
