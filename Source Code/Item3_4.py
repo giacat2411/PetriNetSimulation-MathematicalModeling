@@ -416,10 +416,10 @@ class Item3_4(PetriNet):
             self.markings.append(current_marking)
 
             self.find_firing_sequence(self.markings[0], sequence)
-            print("Initial Marking: M0 = [" + str(self.wait) + ".wait, " 
-                                                    + str(self.inside) + ".inside, " + str(self.done) +".done, "
-                                                    + str(self.free) + ".free, " + str(self.busy) + ".busy, "
-                                                    + str(self.docu)+ ".docu]\n"   + "-"*30)
+            print("Initial Marking: M0 = [" + str(self.init_wait) + ".wait, " 
+                                                    + str(self.init_inside) + ".inside, " + str(self.init_done) +".done, "
+                                                    + str(self.init_free) + ".free, " + str(self.init_busy) + ".busy, "
+                                                    + str(self.init_docu)+ ".docu]\n"   + "-"*30)
             print(str(self.nums_sequence) + " firing sequence\n" + "-"*30)
 
     def find_firing_sequence(self, current_marking, sequence):
